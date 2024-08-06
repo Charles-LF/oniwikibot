@@ -27,7 +27,7 @@ def update_pages(old_site: Site, new_site: Site):
     one_day_ago = datetime.datetime.now() - datetime.timedelta(days=1)
     end_time = one_day_ago.strftime('%Y-%m-%dT%H:%M:%SZ')
     changes_list_old = old_site.get(action="query", list="recentchanges", rcend=end_time,
-                                    rcdir="older", rcprop="user|comment|title|timestamp", rclimit=5)
+                                    rcdir="older", rcprop="user|comment|title|timestamp", rclimit=20)
 
     page = changes_list_old["query"]["recentchanges"]
     changes_title = []
