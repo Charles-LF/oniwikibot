@@ -4,23 +4,25 @@ import re
 
 from mwclient import Site
 
-fadom_user_name = ""
-fadom_user_password = ""
-bwiki_session_data = ""
+from sites.sites import bwiki, wikigg
+
+wikigg_user_name = ''
+wikigg_user_password = ''
+bwiki_session_data = ''
+
 if 'GITHUB_ACTIONS' in os.environ:
-    fadom_user_name = os.environ.get('FANDOM_USER')
-    fadom_user_password = os.environ.get('FADOM_USER_PASSWORD')
+    wikigg_user_name = os.environ.get('WIKIGG_USER')
+    wikigg_user_password = os.environ.get('WIKIGG_USER_PASSWORD')
     bwiki_session_data = os.environ.get("BWIKI_SESSION_DATA")
 
-user_agent = 'CharlesBot/0.0.1 (Charles@klei.vip)'
-fandom = Site('oxygennotincluded.wiki.gg',
-              path="/zh/", clients_useragent=user_agent)
-bwiki = Site('wiki.biligame.com', path="/oni/", clients_useragent=user_agent)
-fandom.login(username=fadom_user_name, password=fadom_user_password)
+wikigg.login(username=wikigg_user_name, password=wikigg_user_password)
 bwiki.login(cookies={'SESSDATA': bwiki_session_data})
 
-print(f"wikigg登录:{fandom.logged_in}")
+print(f"wikigg登录:{wikigg.logged_in}")
 print(f"bwiki登录:{bwiki.logged_in}")
+
+
+# fandom.login(username=wikigg_user_name, password=wikigg_user_password)
 
 
 def update_pages(old_site: Site, new_site: Site):
@@ -33,7 +35,7 @@ def update_pages(old_site: Site, new_site: Site):
     changes_title = []
     for item in page:
         try:
-            print(changes_title)
+            print(f"正在处理{item["title"]}")
             if item["title"] in changes_title:
                 continue
             changes_title.append(item["title"])
@@ -53,4 +55,4 @@ def update_pages(old_site: Site, new_site: Site):
             print(e)
 
 
-update_pages(fandom, bwiki)
+update_pages(wikigg, bwiki)
