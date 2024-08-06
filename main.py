@@ -4,13 +4,9 @@ import re
 
 from mwclient import Site
 
-fadom_user_name = ""
-fadom_user_password = ""
-bwiki_session_data = ""
-if 'GITHUB_ACTIONS' in os.environ:
-    fadom_user_name = os.environ.get('FANDOM_USER')
-    fadom_user_password = os.environ.get('FADOM_USER_PASSWORD')
-    bwiki_session_data = os.environ.get("BWIKI_SESSION_DATA")
+fadom_user_name = os.environ.get('FANDOM_USER')
+fadom_user_password = os.environ.get('FADOM_USER_PASSWORD')
+bwiki_session_data = os.environ.get("BWIKI_SESSION_DATA")
 
 user_agent = 'CharlesBot/0.0.1 (Charles@klei.vip)'
 fandom = Site('oxygennotincluded.fandom.com', path="/zh/", clients_useragent=user_agent)
