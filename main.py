@@ -13,7 +13,7 @@ if 'GITHUB_ACTIONS' in os.environ:
     bwiki_session_data = os.environ.get("BWIKI_SESSION_DATA")
 
 user_agent = 'CharlesBot/0.0.1 (Charles@klei.vip)'
-fandom = Site('oxygennotincluded.fandom.com',
+fandom = Site('oxygennotincluded.wiki.gg',
               path="/zh/", clients_useragent=user_agent)
 bwiki = Site('wiki.biligame.com', path="/oni/", clients_useragent=user_agent)
 fandom.login(username=fadom_user_name, password=fadom_user_password)
