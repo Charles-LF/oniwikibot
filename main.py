@@ -3,6 +3,7 @@ import os
 import re
 
 from mwclient import Site
+import mwclient
 
 fadom_user_name = ""
 fadom_user_password = ""
@@ -59,7 +60,7 @@ def update_pages(old_site: Site, new_site: Site):
                 res = new_site.pages[item["title"]].edit(oldpage_text,
                                                          summary=f'原站点{item["title"]}于{item["timestamp"]}由{item["user"]}更改,于此时同步')
                 print(res)
-        except Exception as e:
+        except mwclient.errors.APIError as e:
             print(e)
             continue
 
