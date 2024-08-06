@@ -1,15 +1,22 @@
 import datetime
+import os
 import re
 
 from mwclient import Site
 
-import user
+fadom_user_name = ""
+fadom_user_password = ""
+bwiki_session_data = ""
+if 'GITHUB_ACTIONS' in os.environ:
+    fadom_user_name = os.environ.get('FANDOM_USER')
+    fadom_user_password = os.environ.get('FADOM_USER_PASSWORD')
+    bwiki_session_data = os.environ.get("BWIKI_SESSION_DATA")
 
 user_agent = 'CharlesBot/0.0.1 (Charles@klei.vip)'
 fandom = Site('oxygennotincluded.fandom.com', path="/zh/", clients_useragent=user_agent)
 bwiki = Site('wiki.biligame.com', path="/oni/", clients_useragent=user_agent)
-fandom.login(username=user.fadom_user_name, password=user.fadom_user_password)
-bwiki.login(cookies={'SESSDATA': user.bwiki_session_data})
+fandom.login(username=fadom_user_name, password=fadom_user_password)
+bwiki.login(cookies={'SESSDATA': bwiki_session_data})
 
 print(f"fandom登录:{fandom.logged_in}")
 print(f"bwiki登录:{bwiki.logged_in}")
