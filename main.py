@@ -19,7 +19,7 @@ bwiki = Site('wiki.biligame.com', path="/oni/", clients_useragent=user_agent)
 fandom.login(username=fadom_user_name, password=fadom_user_password)
 bwiki.login(cookies={'SESSDATA': bwiki_session_data})
 
-print(f"fandom登录:{fandom.logged_in}")
+print(f"wikigg登录:{fandom.logged_in}")
 print(f"bwiki登录:{bwiki.logged_in}")
 
 
