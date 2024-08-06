@@ -13,7 +13,8 @@ if 'GITHUB_ACTIONS' in os.environ:
     bwiki_session_data = os.environ.get("BWIKI_SESSION_DATA")
 
 user_agent = 'CharlesBot/0.0.1 (Charles@klei.vip)'
-fandom = Site('oxygennotincluded.fandom.com', path="/zh/", clients_useragent=user_agent)
+fandom = Site('oxygennotincluded.fandom.com',
+              path="/zh/", clients_useragent=user_agent)
 bwiki = Site('wiki.biligame.com', path="/oni/", clients_useragent=user_agent)
 fandom.login(username=fadom_user_name, password=fadom_user_password)
 bwiki.login(cookies={'SESSDATA': bwiki_session_data})
@@ -36,8 +37,7 @@ def replace_special_chars(input_string):
 def update_pages(old_site: Site, new_site: Site):
     one_day_ago = datetime.datetime.now() - datetime.timedelta(days=1)
     end_time = one_day_ago.strftime('%Y-%m-%dT%H:%M:%SZ')
-    changes_list_old = old_site.get(action="query", list="recentchanges", rcend=end_time, rcdir="older",
-                                    rcprop="user|comment|title|timestamp", rclimit=5)
+    changes_list_old = old_site.get(action="query", list="recentchanges", rcend=end_time, rcdir="older", rcprop="user|comment|title|timestamp", rclimit=5)
 
     page = changes_list_old["query"]["recentchanges"]
     changes_title = []
@@ -49,7 +49,8 @@ def update_pages(old_site: Site, new_site: Site):
 
         replace_str = r'\[\[(en|ru):[^\]]*\]\]'
 
-        oldpage_text = re.sub(replace_str, "", old_site.pages[item["title"]].text())
+        oldpage_text = re.sub(
+            replace_str, "", old_site.pages[item["title"]].text())
 
         new_site_text = new_site.pages[item["title"]].text()
         if oldpage_text != new_site_text:
@@ -58,5 +59,4 @@ def update_pages(old_site: Site, new_site: Site):
             print(res)
 
 
-
-update_pages(fandom,bwiki)
+update_pages(fandom, bwiki)
