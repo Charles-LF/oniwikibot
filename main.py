@@ -56,3 +56,7 @@ def update_pages(old_site: Site, new_site: Site):
             res = new_site.pages[item["title"]].edit(oldpage_text,
                                                      summary=f'原站点{item["title"]}于{item["timestamp"]}由{item["user"]}更改,于此时同步')
             print(res)
+
+
+
+update_pages(fandom,bwiki)
