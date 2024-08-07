@@ -1,6 +1,6 @@
 import os
 
-from pages.transferPages import update_pages
+from img.img import transferAllImg
 from sites.sites import bwiki, wikigg
 
 wikigg_user_name = ''
@@ -19,4 +19,4 @@ if __name__ == '__main__':
     print(f"wikigg登录:{wikigg.logged_in}")
     print(f"bwiki登录:{bwiki.logged_in}")
 
-    update_pages(wikigg, bwiki)
+    transferAllImg(wikigg, bwiki)
