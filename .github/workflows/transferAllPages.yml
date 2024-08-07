@@ -1,4 +1,4 @@
-name: WIKI_BOT
+name: transferAllImg
 
 # Controls when the workflow will run
 on:
@@ -7,9 +7,8 @@ on:
   #     branches: [ main ]
   pull_request:
     branches: [ master ]
-  schedule:
-    - cron: '0 1 * * *'
-  
+
+
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -34,8 +33,4 @@ jobs:
           WIKIGG_USER_PASSWORD: ${{ secrets.WIKIGG_USER_PASSWORD}}
           WIKIGG_USER: ${{ secrets.WIKIGG_USER }}
           BWIKI_SESSION_DATA: ${{ secrets.BWIKI_SESSION_DATA}}
-        run: python -u ./main.py
-
-
-
-
+        run: python -u ./transferAllPages.py
