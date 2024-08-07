@@ -1,4 +1,4 @@
-name: transferAllImg
+name: transferAllPages
 
 # Controls when the workflow will run
 on:
