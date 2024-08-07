@@ -51,8 +51,8 @@ def transferAllImg(oldSite: Site, newSite: Site):
             with open(imgName, "wb") as f:
                 file.download(f)
             with open(imgName, "rb") as f:
-                newSite.upload(f, filename='WIKI上的文件名', description="== 授权协议 ==\n{{游戏版权}}",
-                               comment='机器人批量上传')
+                newSite.upload(f, filename=imgName, description="== 授权协议 ==\n{{游戏版权}}",
+                               comment='机器人批量上传', ignore=True)
         except Exception as e:
             print(e)
         finally:
