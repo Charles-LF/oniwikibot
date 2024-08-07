@@ -31,8 +31,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install mwclient
       - env:
-          FADOM_USER_PASSWORD: ${{ secrets.WIKIGG_USER_PASSWORD}}
-          FANDOM_USER: ${{ secrets.WIKIGG_USER }}
+          WIKIGG_USER_PASSWORD: ${{ secrets.WIKIGG_USER_PASSWORD}}
+          WIKIGG_USER: ${{ secrets.WIKIGG_USER }}
           BWIKI_SESSION_DATA: ${{ secrets.BWIKI_SESSION_DATA}}
         run: python -u ./main.py
 
