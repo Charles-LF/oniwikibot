@@ -1,4 +1,5 @@
 import os
+import sys
 
 from pages.transferPages import update_pages
 from sites.sites import bwiki, wikigg
@@ -18,5 +19,9 @@ if __name__ == '__main__':
 
     print(f"wikigg登录:{wikigg.logged_in}")
     print(f"bwiki登录:{bwiki.logged_in}")
+
+    # 检测bwiki登录状态，没登陆说明session过期了
+    if not bwiki.logged_in:
+        sys.exit(1)
 
     update_pages(wikigg, bwiki)

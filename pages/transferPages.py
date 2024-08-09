@@ -37,8 +37,11 @@ def update_pages(old_site: Site, new_site: Site):
 
             changes_title.append(item["title"])
 
+            # 尝试跨站底部链接清除
             oldpage_text = re.sub(replace_str, "", old_site.pages[item["title"]].text())
-
+            # 尝试将DEV命名空间下得模块转化
+            if "Dev:" in oldpage_text:
+                oldpage_text = re.sub("Dev:", " Module:Dev/", oldpage_text)
             new_site_text = new_site.pages[item["title"]].text()
 
             if oldpage_text != new_site_text:
@@ -67,4 +70,3 @@ def transferAllPages(oldSite: Site, newSite: Site):
                 newpage.edit(text=oldpage_text, summary="原站同步,尝试清除外链.", bot=True)
         except Exception as e:
             print(e)
-           
