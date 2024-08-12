@@ -41,7 +41,7 @@ def update_pages(old_site: Site, new_site: Site):
             oldpage_text = re.sub(replace_str, "", old_site.pages[item["title"]].text())
             # 尝试将DEV命名空间下得模块转化
             if "Dev:" in oldpage_text:
-                oldpage_text = re.sub("Dev:", " Module:Dev/", oldpage_text)
+                oldpage_text = re.sub("Dev:", "Module:Dev/", oldpage_text)
             new_site_text = new_site.pages[item["title"]].text()
 
             if oldpage_text != new_site_text:
