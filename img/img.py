@@ -15,22 +15,25 @@ def transferImg(oldSite: Site, newSite: Site, fileName: string):
     :param fileName:  文件名称，可以是 File:测试.png
     :return: null
     """
+    picName = re.sub("File:", "", fileName)
     try:
-        fileName = re.sub("File:", "", fileName)
-        file = oldSite.images[fileName]
+        file = oldSite.images[picName]
 
-        with open(fileName, "wb") as f:
+        with open(picName, "wb") as f:
             file.download(f)
+            print(f'下载完成{picName}')
 
-        with open(fileName, 'rb') as f:
-            newSite.upload(f, filename=fileName, description="== 授权协议 ==\n{{游戏版权}}",
+        with open(picName, 'rb') as f:
+            print(f)
+            # noinspection PyTypeChecker
+            newSite.upload(f, filename=picName, description="== 授权协议 ==\n{{游戏版权}}",
                            comment='原站文件上传同步', ignore=True)
-            print(f"上传文件: {fileName}")
+            print(f"上传文件: {picName}")
 
     except Exception as e:
         print(e)
     finally:
-        os.remove(fileName)
+        os.remove(f"{picName}")
 
 
 def transferAllImg(oldSite: Site, newSite: Site):
