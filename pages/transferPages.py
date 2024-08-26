@@ -33,6 +33,7 @@ def update_pages(old_site: Site, new_site: Site):
             # 图片判断
             if ("File:" in item["title"]) & (item["ns"] == 6):
                 transferImg(oldSite=old_site, newSite=new_site, fileName=item["title"])
+                changes_title.append(item["title"])
                 continue
 
             changes_title.append(item["title"])
