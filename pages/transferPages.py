@@ -21,6 +21,8 @@ def update_pages(old_site: Site, new_site: Site):
     now = datetime.datetime.now()
     # 计算3小时前的时间
     three_hours_ago = now - datetime.timedelta(hours=3)
+    print(f"开始处理{three_hours_ago}到{now}的更新...")
+
     # 将时间转换为MediaWiki的时间戳格式（Unix时间戳）
     end_time = int(three_hours_ago.timestamp())
     changes_list_old = old_site.get(action="query", list="recentchanges", rcstart="now", rcend=end_time, rcdir="older", rcprop="user|comment|title|timestamp")
