@@ -17,10 +17,13 @@ def update_pages(old_site: Site, new_site: Site):
     :param new_site: 目标站
     :return: null
     """
-    one_day_ago = datetime.datetime.now() - datetime.timedelta(days=1)
-    end_time = one_day_ago.strftime('%Y-%m-%dT%H:%M:%SZ')
-    changes_list_old = old_site.get(action="query", list="recentchanges", rcend=end_time,
-                                    rcdir="older", rcprop="user|comment|title|timestamp", rclimit=20)
+    # 获取当前时间
+    now = datetime.datetime.now()
+    # 计算3小时前的时间
+    three_hours_ago = now - datetime.timedelta(hours=3)
+    # 将时间转换为MediaWiki的时间戳格式（Unix时间戳）
+    end_time = int(three_hours_ago.timestamp())
+    changes_list_old = old_site.get(action="query", list="recentchanges", rcstart="now", rcend=end_time, rcdir="older", rcprop="user|comment|title|timestamp")
 
     page = changes_list_old["query"]["recentchanges"]
     changes_title = []
