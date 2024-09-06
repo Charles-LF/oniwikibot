@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           architecture: 'x64'
@@ -33,4 +33,4 @@ jobs:
           WIKIGG_USER_PASSWORD: ${{ secrets.WIKIGG_USER_PASSWORD}}
           WIKIGG_USER: ${{ secrets.WIKIGG_USER }}
           BWIKI_SESSION_DATA: ${{ secrets.BWIKI_SESSION_DATA}}
-        run: python -u ./transferallimg.py
+        run: python -u ./util/transferallimg.py
