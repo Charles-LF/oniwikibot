@@ -46,4 +46,6 @@ def MissingImg(sessionData: str, oldSite: Site, newSite: Site):
         except Exception as e:
             print(e)
         finally:
-            os.remove(fileName)
+            if os.path.exists(fileName):
+                os.remove(fileName)
+            
