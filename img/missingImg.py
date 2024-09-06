@@ -28,8 +28,8 @@ def MissingImg(sessionData: str, oldSite: Site, newSite: Site):
     for li in special_ol.find_all('li'):
         first_a = li.find('a')
         # 拿到第一个标签的名字 类似：  文件:材料科学研究.png
-
-        fileName = re.sub("File:", "", first_a.text)
+        fileName = re.sub("文件:", "", first_a.text)
+        print(fileName)
         try:
             file = oldSite.images[fileName]
 
