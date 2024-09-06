@@ -27,7 +27,7 @@ def transferImg(oldSite: Site, newSite: Site, fileName: string):
             print(f)
             # noinspection PyTypeChecker
             newSite.upload(f, filename=picName, description="== 授权协议 ==\n{{游戏版权}}",
-                           comment='原站文件上传同步', ignore=True)
+                           comment='原站文件上传同步', ignore=False)
             print(f"上传文件: {picName}")
 
     except Exception as e:
