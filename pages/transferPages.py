@@ -9,6 +9,9 @@ from img.img import transferImg
 
 replace_str = r'\[\[(en|ru|pt-br):[^\]]*\]\]'
 
+# 把不需要处理的页面名称丢这里
+donothing = ["教程"]
+
 
 def update_pages(old_site: Site, new_site: Site):
     """
@@ -32,15 +35,16 @@ def update_pages(old_site: Site, new_site: Site):
     for item in page:
         try:
             print(f"正在处理{item["title"]}")
+            if item["title"] in donothing:
+                changes_title.append(item["title"])
+                continue
             if item["title"] in changes_title:
                 continue
-
             # 图片判断
             if ("File:" in item["title"]) & (item["ns"] == 6):
                 transferImg(oldSite=old_site, newSite=new_site, fileName=item["title"])
                 changes_title.append(item["title"])
                 continue
-
             changes_title.append(item["title"])
 
             # 尝试跨站底部链接清除
