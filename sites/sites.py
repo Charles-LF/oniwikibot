@@ -27,4 +27,3 @@ def login_to_wiki(site: Site, sessiondata, max_attempts=3):
             attempts += 1
             time.sleep(5)  # Wait for 2 seconds before retrying
     print("多次登录失败，请检查")
-    sys.exit(1)
