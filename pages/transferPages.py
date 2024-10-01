@@ -42,15 +42,16 @@ def update_pages(old_site: Site, new_site: Site):
             if item["title"] in changes_title:
                 print(f"已经处理过{item["title"]},跳过")
                 continue
+
             # 图片判断
             if ("File:" in item["title"]) & (item["ns"] == 6):
                 transferImg(oldSite=old_site, newSite=new_site, fileName=item["title"])
                 changes_title.append(item["title"])
                 continue
-            changes_title.append(item["title"])
 
             # 尝试跨站底部链接清除
             oldpage_text = re.sub(replace_str, "", old_site.pages[item["title"]].text())
+
             # 尝试将DEV命名空间下得模块转化
             if "Dev:" in oldpage_text:
                 oldpage_text = re.sub("Dev:", "Module:Dev/", oldpage_text)
@@ -59,6 +60,7 @@ def update_pages(old_site: Site, new_site: Site):
             if oldpage_text != new_site_text:
                 res = new_site.pages[item["title"]].edit(oldpage_text, summary=f'原站点{item["title"]}于{item["timestamp"]}由{item["user"]}更改,于此时同步')
                 print(res)
+            changes_title.append(item["title"])
         except Exception as e:
             print(e)
 
