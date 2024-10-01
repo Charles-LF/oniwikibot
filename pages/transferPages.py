@@ -33,6 +33,7 @@ def update_pages(old_site: Site, new_site: Site, username, password, sessiondata
 
     # 判断处理列表数量
     if len(changes_list_old) > 0:
+        print(len(changes_list_old))
         new_site = login.login_to_bwiki(site=new_site, sessiondata=sessiondata)
 
     changes_title = []

@@ -1,23 +1,16 @@
-name: transferAllImg
+name: WIKI_BOT
 
 # Controls when the workflow will run
 on:
-  #   # Triggers the workflow on push or pull request events but only for the main branch
-  #   push:
-  #     branches: [ main ]
   pull_request:
     branches: [ master ]
 
-
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
   main:
     runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
       - name: Set up Python
@@ -33,4 +26,4 @@ jobs:
           WIKIGG_USER_PASSWORD: ${{ secrets.WIKIGG_USER_PASSWORD}}
           WIKIGG_USER: ${{ secrets.WIKIGG_USER }}
           BWIKI_SESSION_DATA: ${{ secrets.BWIKI_SESSION_DATA}}
-        run: python -u ./transferallimg.py
+        run: python -u ./transferOnePage.py
