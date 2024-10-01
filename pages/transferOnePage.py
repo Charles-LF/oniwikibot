@@ -21,7 +21,7 @@ def transferPage(oldSite: Site, newSite: Site, pageName: str, username, password
     if "Dev:" in oldSiteText:
         oldSiteText = re.sub("Dev:", "Module:Dev/", oldSiteText)
     # 图片判断
-    if ("File:" in pageName) | (old_Site.pages[pageName]["ns"] == 6):
+    if "File:" in pageName:
         transferImg(oldSite=oldSite, newSite=newSite, fileName=re.sub('File:', '', pageName))
 
     res = newSite.pages[pageName].edit(oldSiteText, summary="页面手动同步", bot=True)
