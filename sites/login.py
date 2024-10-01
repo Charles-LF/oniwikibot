@@ -18,11 +18,11 @@ def login_to_bwiki(site: Site, sessiondata, max_attempts=3):
     print("多次登录失败，请检查")
 
 
-def login_to_wikigg(site: Site, username, passworld, max_attempts=3):
+def login_to_wikigg(site: Site, username, password, max_attempts=3):
     attempts = 0
     while attempts < max_attempts:
         try:
-            site.login(username=username, password=passworld)
+            site.login(username=username, password=password)
             if site.logged_in:
                 print("GG登录成功思密达！！！")
                 return site
