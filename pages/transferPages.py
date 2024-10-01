@@ -40,6 +40,7 @@ def update_pages(old_site: Site, new_site: Site):
                 print("在无需处理的页面列表中,跳过")
                 continue
             if item["title"] in changes_title:
+                print(f"已经处理过{item["title"]},跳过")
                 continue
             # 图片判断
             if ("File:" in item["title"]) & (item["ns"] == 6):
