@@ -32,8 +32,8 @@ def update_pages(old_site: Site, new_site: Site, username, password, sessiondata
     pages = changes_list_old["query"]["recentchanges"]
 
     # 判断处理列表数量
-    if len(changes_list_old) > 0:
-        print(len(changes_list_old))
+    if len(pages) > 0:
+        print(len(pages))
         new_site = login.login_to_bwiki(site=new_site, sessiondata=sessiondata)
 
     changes_title = []
