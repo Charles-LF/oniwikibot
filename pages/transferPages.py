@@ -20,8 +20,8 @@ def update_pages(old_site: Site, new_site: Site, username, password, sessiondata
 
     # 获取当前时间
     now = datetime.datetime.now()
-    # 计算4小时前的时间
-    three_hours_ago = now - datetime.timedelta(hours=4)
+    # 计算3小时前的时间
+    three_hours_ago = now - datetime.timedelta(hours=3)
     print(f"开始处理{three_hours_ago}到{now}的更新...")
 
     # 将时间转换为MediaWiki的时间戳格式（Unix时间戳）
