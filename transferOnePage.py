@@ -12,6 +12,6 @@ if 'GITHUB_ACTIONS' in os.environ:
     wikigg_user_password = os.environ.get('WIKIGG_USER_PASSWORD')
     bwiki_session_data = os.environ.get("BWIKI_SESSION_DATA")
 
-pageName = '娱乐室'
+pageName = '高压制氧'
 if __name__ == '__main__':
     transferPage(oldSite=wikigg, newSite=bwiki, pageName=pageName, username=wikigg_user_name, password=wikigg_user_password, sessiondata=bwiki_session_data)
