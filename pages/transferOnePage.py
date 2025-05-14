@@ -3,7 +3,6 @@ import re
 from mwclient import Site
 
 from img.img import transferImg
-from sites import login
 
 
 def transferPage(oldSite: Site, newSite: Site, pageName: str, username, password, sessiondata):

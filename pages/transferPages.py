@@ -6,7 +6,6 @@ import time
 from mwclient import Site
 
 from img.img import transferImg
-from sites import login
 
 replace_str = r'\[\[(en|ru|pt-br):[^\]]*\]\]'
 
@@ -14,10 +13,7 @@ replace_str = r'\[\[(en|ru|pt-br):[^\]]*\]\]'
 donothing = ["教程"]
 
 
-def update_pages(old_site: Site, new_site: Site, username, password, sessiondata):
-    # 登录GG
-    old_site = login.login_to_wikigg(old_site, username=username, password=password)
-
+def update_pages(old_site: Site, new_site: Site):
     # 获取当前时间
     now = datetime.datetime.now()
     # 计算3小时前的时间
@@ -30,11 +26,6 @@ def update_pages(old_site: Site, new_site: Site, username, password, sessiondata
     # 获取更改列表
     changes_list_old = old_site.get(action="query", list="recentchanges", rcstart="now", rcend=end_time, rcdir="older", rcprop="user|comment|title|timestamp")
     pages = changes_list_old["query"]["recentchanges"]
-
-    # 判断处理列表数量
-    if len(pages) > 0:
-        print(len(pages))
-        new_site = login.login_to_bwiki(site=new_site, sessiondata=sessiondata)
 
     changes_title = []
 
