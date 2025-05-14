@@ -1,62 +1,49 @@
-import os
+import io
 import random
-import re
-import string
 import time
 
 from mwclient import Site
 
 
-def transferImg(oldSite: Site, newSite: Site, fileName: string):
+def transferImg(oldSite: Site, newSite: Site, fileName: str, comment: str = '原站文件上传同步', ignore: bool = False) -> None:
     """
-    转存图片,实现好像很煞笔，但是能用
+    转存单个图片文件。
     :param oldSite: 来源站点
-    :param newSite:  目标站点
-    :param fileName:  文件名称，可以是 File:测试.png
-    :return: null
+    :param newSite: 目标站点
+    :param fileName: 文件名，例如：File:测试.png
+    :param comment: 上传注释
+    :param ignore: 是否忽略警告
     """
-    picName = re.sub("File:", "", fileName)
+    image_name = fileName.replace("File:", "")
     try:
-        file = oldSite.images[picName]
+        file = oldSite.images[image_name]
+        # 使用 BytesIO 处理图片内容
+        file_content = file.download()
+        file_obj = io.BytesIO(file_content)
 
-        with open(picName, "wb") as f:
-            file.download(f)
-            print(f'下载完成{picName}')
-
-        with open(picName, 'rb') as f:
-            print(f)
-            # noinspection PyTypeChecker
-            newSite.upload(f, filename=picName, description="== 授权协议 ==\n{{游戏版权}}",
-                           comment='原站文件上传同步', ignore=False)
-            print(f"上传文件: {picName}")
+        # 上传图片
+        newSite.upload(
+            file=file_obj,
+            filename=image_name,
+            description="== 授权协议 ==\n{{游戏版权}}",
+            comment=comment,
+            ignore=ignore
+        )
+        print(f"成功上传图片: {image_name}")
 
     except Exception as e:
-        print(e)
-    finally:
-        os.remove(f"{picName}")
+        print(f"转存失败: {e}")
 
 
-def transferAllImg(oldSite: Site, newSite: Site):
+def transferAllImg(oldSite: Site, newSite: Site) -> None:
     """
-    转存所有图片
-    :param oldSite: 来源（旧）站点
-    :param newSite: 目标（新）站点
-    :return: null
+    批量转存所有图片文件。
+    :param oldSite: 来源站点
+    :param newSite: 目标站点
     """
-    allImgList = list(oldSite.allimages(generator=True))
-    for img in allImgList:
+    all_images_list = list(oldSite.allimages(generator=True))
+    for image in all_images_list:
         time.sleep(random.uniform(1, 1.5))
-        fileName = img.name[5:]
-        print(f"正在处理{fileName}")
-        imgName = re.sub('"', "", fileName)
-        try:
-            file = oldSite.images[fileName]
-            with open(imgName, "wb") as f:
-                file.download(f)
-            with open(imgName, "rb") as f:
-                newSite.upload(f, filename=imgName, description="== 授权协议 ==\n{{游戏版权}}",
-                               comment='机器人批量上传', ignore=True)
-        except Exception as e:
-            print(e)
-        finally:
-            os.remove(imgName)
+        fileName = "File:" + image.name
+        print(f"正在处理: {fileName}")
+        transferImg(oldSite, newSite, fileName, comment='机器人批量上传', ignore=True)
