@@ -7,79 +7,100 @@ from mwclient import Site
 
 from img.img import transferImg
 
-replace_str = r'\[\[(en|ru|pt-br):[^\]]*\]\]'
+# 常量定义
+CROSS_SITE_LINK_REGEX = r'\[\[(en|ru|pt-br):[^\]]*\]\]'
+DEV_NAMESPACE_PREFIX = "Dev:"
+MODULE_NAMESPACE_PREFIX = "Module:Dev/"
+IGNORED_PAGES = ["教程"]
+IMAGE_NAMESPACE_ID = 6
 
-# 把不需要处理的页面名称丢这里
-donothing = ["教程"]
+
+def clean_page_text(page_text: str) -> str:
+    """清理页面文本中的跨站链接"""
+    return re.sub(CROSS_SITE_LINK_REGEX, "", page_text)
+
+
+def convert_dev_namespace(page_text: str) -> str:
+    """将 Dev: 命名空间转换为 Module:Dev/"""
+    return page_text.replace(DEV_NAMESPACE_PREFIX, MODULE_NAMESPACE_PREFIX)
+
+
+def process_image(old_site: Site, new_site: Site, title: str):
+    """处理图片页面的传输"""
+    if "File:" in title and IMAGE_NAMESPACE_ID == 6:
+        transferImg(oldSite=old_site, newSite=new_site, fileName=title)
+        return True
+    return False
+
+
+def update_single_page(old_site: Site, new_site: Site, title: str, user: str):
+    """更新单个页面"""
+    try:
+        print(f"正在处理 {title}")
+        old_page_text = clean_page_text(old_site.pages[title].text())
+        old_page_text = convert_dev_namespace(old_page_text)
+        new_page_text = new_site.pages[title].text()
+
+        if old_page_text != new_page_text:
+            res = new_site.pages[title].edit(
+                text=old_page_text,
+                summary=f'原站点 {title} 由 {user} 更改, 于此时同步'
+            )
+            print(res)
+    except Exception as e:
+        print(f"处理页面 {title} 时出错: {e}")
 
 
 def update_pages(old_site: Site, new_site: Site):
-    # 获取当前时间
+    """根据最近更改列表更新页面"""
     now = datetime.datetime.now()
-    # 计算3小时前的时间
     three_hours_ago = now - datetime.timedelta(hours=3)
-    print(f"开始处理{three_hours_ago}到{now}的更新...")
-
-    # 将时间转换为MediaWiki的时间戳格式（Unix时间戳）
+    print(f"开始处理 {three_hours_ago} 到 {now} 的更新...")
     end_time = int(three_hours_ago.timestamp())
 
-    # 获取更改列表
-    changes_list_old = old_site.get(action="query", list="recentchanges", rcstart="now", rcend=end_time, rcdir="older", rcprop="user|comment|title|timestamp")
+    changes_list_old = old_site.get(
+        action="query",
+        list="recentchanges",
+        rcstart="now",
+        rcend=end_time,
+        rcdir="older",
+        rcprop="user|comment|title|timestamp"
+    )
     pages = changes_list_old["query"]["recentchanges"]
-
-    changes_title = []
+    processed_titles = set()
 
     for page in pages:
-
         title = page["title"]
-        try:
-            print(f"正在处理{title}")
-            if title in donothing:
-                changes_title.append(title)
-                print("在无需处理的页面列表中,跳过")
-                continue
-            if title in changes_title:
-                print(f"已经处理过{title},跳过")
-                continue
+        if title in IGNORED_PAGES:
+            print(f"{title} 在无需处理的页面列表中, 跳过")
+            continue
+        if title in processed_titles:
+            print(f"已经处理过 {title}, 跳过")
+            continue
+        if process_image(old_site, new_site, title):
+            processed_titles.add(title)
+            continue
 
-            # 图片判断
-            if ("File:" in title) & (page["ns"] == 6):
-                transferImg(oldSite=old_site, newSite=new_site, fileName=title)
-                changes_title.append(title)
-                continue
-
-            # 尝试跨站底部链接清除
-            oldpage_text = re.sub(replace_str, "", old_site.pages[title].text())
-
-            # 尝试将DEV命名空间下得模块转化
-            if "Dev:" in oldpage_text:
-                oldpage_text = re.sub("Dev:", "Module:Dev/", oldpage_text)
-            new_site_text = new_site.pages[title].text()
-
-            if oldpage_text != new_site_text:
-                res = new_site.pages[title].edit(oldpage_text, summary=f'原站点{title}由{page["user"]}更改,于此时同步')
-                print(res)
-            changes_title.append(title)
-        except Exception as e:
-            print(e)
+        update_single_page(old_site, new_site, title, page["user"])
+        processed_titles.add(title)
 
 
-def transferAllPages(oldSite: Site, newSite: Site):
-    """
-    同步两个站点的页面,使用allpages
-    :param oldSite: 来源站点
-    :param newSite: 目标站点
-    :return: null
-    """
-    allpages = list(oldSite.allpages(generator=True))
-    for page in allpages:
-        print(f"正在处理{page.name}")
+def transfer_all_pages(old_site: Site, new_site: Site):
+    """同步两个站点的所有页面"""
+    all_pages = list(old_site.allpages(generator=True))
+    for page in all_pages:
+        print(f"正在处理 {page.name}")
         time.sleep(random.uniform(1, 1.8))
         try:
-            oldpage_text = re.sub(replace_str, "", oldSite.pages[page.name].text())
-            newpage = newSite.pages[page.name]
-            newpage_text = newpage.text()
-            if oldpage_text != newpage_text:
-                newpage.edit(text=oldpage_text, summary="原站同步,尝试清除外链.", bot=True)
+            old_page_text = clean_page_text(old_site.pages[page.name].text())
+            new_page = new_site.pages[page.name]
+            new_page_text = new_page.text()
+
+            if old_page_text != new_page_text:
+                new_page.edit(
+                    text=old_page_text,
+                    summary="原站同步, 尝试清除外链.",
+                    bot=True
+                )
         except Exception as e:
-            print(e)
+            print(f"处理页面 {page.name} 时出错: {e}")
