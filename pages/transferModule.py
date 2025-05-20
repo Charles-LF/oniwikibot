@@ -1,45 +1,43 @@
 from mwclient import Site
 
-from sites import login
+# 全局常量定义
+MODULE_NAMESPACE_ID = 828
+TARGET_MODULE_PREFIXES = ['Data', 'I18n']
 
-moduleListStr = ['Data', 'I18n']
+
+def parse_module_title(page_name: str, namespace_prefix: str) -> str:
+    """从完整页面名称中解析出模块标题。"""
+    if page_name.startswith(namespace_prefix + ':'):
+        return page_name[len(namespace_prefix) + 1:]
+    return ''
 
 
-def transModule(oldSite: Site, newSite: Site,username,password,sessiondata):
+def fetch_modules_to_process(site: Site, module_prefixes: list[str]) -> list[str]:
+    """根据给定站点和前缀列表获取需要处理的模块。"""
+    modules_to_process = []
+    module_namespace_prefix = site.namespaces[MODULE_NAMESPACE_ID]
+    for page in site.allpages(namespace=MODULE_NAMESPACE_ID):
+        module_title = parse_module_title(page.name, module_namespace_prefix)
+        if module_title and any(module_title.startswith(prefix) for prefix in module_prefixes):
+            if module_title not in modules_to_process:
+                modules_to_process.append(module_title)
+    return modules_to_process
+
+
+def sync_module(module_name: str, old_site: Site, new_site: Site) -> None:
+    """同步单个模块从旧站点到新站点。"""
+    full_module_name = f"Module:{module_name}"
+    new_text = new_site.pages[full_module_name].text()
+    old_text = old_site.pages[full_module_name].text()
+    if old_text != new_text:
+        edit_response = new_site.pages[full_module_name].edit(text=old_text, summary="原站模块同步")
+        print(f"模块 {module_name} 同步完成: {edit_response}")
+
+
+def trans_module(old_site: Site, new_site: Site) -> None:
     """
-    临时使用的模块转存
-    :param oldSite: 这要填GG
-    :param newSite: 新站点是bWiki
-    :param sessiondata: sessiondata
-    :param password: password
-    :param username: username
-    :return: null
+    将指定模块从旧站点转移到新站点。
     """
-    moduleList = []  # 等着要处理的列表
-
-    namespace_number = 828  # 神tm 828,找半天
-    # 登录GG
-    oldSite = login.login_to_wikigg(oldSite, username=username, password=password)
-    # 登录bwiki
-    newSite = login.login_to_bwiki(site=newSite, sessiondata=sessiondata)
-
-    # 拿到模块命名空间下的所有子模块
-    namespace_prefix = oldSite.namespaces[namespace_number]
-    for page in oldSite.allpages(namespace=namespace_number):
-
-        title = page.name
-        if title.startswith(namespace_prefix + ':'):
-            pageTitle = title[len(namespace_prefix) + 1:]
-            for prefix in moduleListStr:
-                # 将要同步的模块从茫茫模块中挑选出来丢到上面的列表里边在处理
-                if pageTitle.startswith(prefix) and pageTitle not in moduleList:
-                    moduleList.append(pageTitle)
-                    # print(pageTitle)
-    for module in moduleList:
-        module = "Module:" + module  # 拿到要处理的页面名称
-        # newSite  是bwiki
-        newText = newSite.pages[module].text()
-        oldText = oldSite.pages[module].text()
-        if oldText != newText:
-            res = newSite.pages[module].edit(text=oldText, summary="原站模块同步")
-            print(res)
+    modules = fetch_modules_to_process(old_site, TARGET_MODULE_PREFIXES)
+    for module in modules:
+        sync_module(module, old_site, new_site)
