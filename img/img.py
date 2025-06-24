@@ -1,6 +1,4 @@
 import io
-import random
-import time
 
 from mwclient import Site
 
@@ -35,15 +33,43 @@ def transferImg(oldSite: Site, newSite: Site, fileName: str, comment: str = '原
         print(f"转存失败: {e}")
 
 
-def transferAllImg(oldSite: Site, newSite: Site) -> None:
+def transferDiffImg(oldSite: Site, newSite: Site) -> None:
     """
-    批量转存所有图片文件。
-    :param oldSite: 来源站点
-    :param newSite: 目标站点
+    检查两个站点间的图片，将旧站存在但新站没有的图片转存至新站点
+    :param oldSite: 原站点
+    :param newSite: 镜像站点
+    :return: None
     """
-    all_images_list = list(oldSite.allimages(generator=True))
-    for image in all_images_list:
-        time.sleep(random.uniform(1, 1.5))
-        fileName = "File:" + image.name
-        print(f"正在处理: {fileName}")
-        transferImg(oldSite, newSite, fileName, comment='机器人批量上传', ignore=True)
+    # 收集新旧站点的所有图片名称集合
+    old_img_names = {img.name for img in oldSite.allimages(generator=True)}
+    new_img_names = {img.name for img in newSite.allimages(generator=True)}
+
+    # 计算需要从旧站转移到新站的图片（仅旧站存在的）
+    images_to_transfer = old_img_names - new_img_names
+
+    if not images_to_transfer:
+        print("没有需要转移的图片")
+        return
+
+    print(f"发现 {len(images_to_transfer)} 张图片需要转移")
+    success_count = 0
+    failed_images = []
+
+    for img_name in sorted(images_to_transfer):
+        try:
+            print(f"正在处理图片: {img_name}")
+            transferImg(oldSite, newSite, img_name)
+            success_count += 1
+        except Exception as e:
+            failed_images.append((img_name, str(e)))
+            print(f"错误: 无法转移图片 {img_name} - {e}")
+
+    # 输出转移结果摘要
+    print("\n===== 转移结果 =====")
+    print(f"成功: {success_count} 张")
+    print(f"失败: {len(failed_images)} 张")
+
+    if failed_images:
+        print("\n失败的图片列表:")
+        for name, error in failed_images:
+            print(f"- {name}: {error}")
