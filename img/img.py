@@ -41,8 +41,8 @@ def transferDiffImg(oldSite: Site, newSite: Site) -> None:
     :return: None
     """
     # 收集新旧站点的所有图片名称集合
-    old_img_names = {img.name for img in oldSite.allimages(generator=True)}
-    new_img_names = {img.name for img in newSite.allimages(generator=True)}
+    old_img_names = {img.name.replace("文件:", "").replace("File:", "") for img in oldSite.allimages(generator=True)}
+    new_img_names = {img.name.replace("文件:", "").replace("File:", "") for img in newSite.allimages(generator=True)}
 
     # 计算需要从旧站转移到新站的图片（仅旧站存在的）
     images_to_transfer = old_img_names - new_img_names
