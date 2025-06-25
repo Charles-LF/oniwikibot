@@ -54,8 +54,15 @@ def transferDiffImg(oldSite: Site, newSite: Site) -> None:
     print(f"发现 {len(images_to_transfer)} 张图片需要转移")
     success_count = 0
     failed_images = []
+    skipped_images = []  # 新增：记录跳过的图片
 
     for img_name in sorted(images_to_transfer):
+        # 新增：检查图片扩展名，跳过.webp和.ico格式
+        if img_name.lower().endswith(('.webp', '.ico')):
+            skipped_images.append(img_name)
+            print(f"跳过图片: {img_name} (不支持的格式)")
+            continue
+
         try:
             print(f"正在处理图片: {img_name}")
             transferImg(oldSite, newSite, img_name)
@@ -68,8 +75,14 @@ def transferDiffImg(oldSite: Site, newSite: Site) -> None:
     print("\n===== 转移结果 =====")
     print(f"成功: {success_count} 张")
     print(f"失败: {len(failed_images)} 张")
+    print(f"跳过: {len(skipped_images)} 张")  # 新增：输出跳过的图片数量
 
     if failed_images:
         print("\n失败的图片列表:")
         for name, error in failed_images:
             print(f"- {name}: {error}")
+
+    if skipped_images:  # 新增：输出跳过的图片列表
+        print("\n跳过的图片列表:")
+        for name in skipped_images:
+            print(f"- {name}")
