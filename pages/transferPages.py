@@ -1,7 +1,5 @@
 import datetime
-import random
 import re
-import time
 
 from mwclient import Site
 
@@ -87,20 +85,32 @@ def update_pages(old_site: Site, new_site: Site):
 
 def transfer_all_pages(old_site: Site, new_site: Site):
     """同步两个站点的所有页面"""
-    all_pages = list(old_site.allpages(generator=True))
-    for page in all_pages:
-        print(f"正在处理 {page.name}")
-        time.sleep(random.uniform(1, 1.8))
-        try:
-            old_page_text = clean_page_text(old_site.pages[page.name].text())
-            new_page = new_site.pages[page.name]
-            new_page_text = new_page.text()
+    # 获取两个站点间所有页面的页面名称列表
+    old_page_list = {page.name for page in old_site.allpages(generator=True)}
+    new_page_list = {page.name for page in new_site.allpages(generator=True)}
 
-            if old_page_text != new_page_text:
-                new_page.edit(
-                    text=old_page_text,
-                    summary="原站同步, 尝试清除外链.",
-                    bot=True
-                )
+    # 计算需要从旧站转移到新站的页面（仅旧站存在的）
+    pages_to_transfer = old_page_list - new_page_list
+
+    if not pages_to_transfer:
+        print("没有需要转移的图片")
+        return
+
+    print(f"发现 {len(pages_to_transfer)} 个页面需要转移")
+    success_count = 0
+    failed_pages = []
+    # skipped_pages = []  # 新增：记录跳过的页面名称
+
+    for page_name in sorted(pages_to_transfer):
+        # 检查页面名称合法性
+        # if page_name.lower().endswith(('.webp', '.ico')):
+        #     skipped_pages.append(page_name)
+        #     print(f"跳过图片: {page_name} (不支持的格式)")
+        #     continue
+        try:
+            print(f"正在处理图片: {page_name}")
+            update_single_page(old_site, new_site, page_name, "Charles手动触发同步")
+            success_count += 1
         except Exception as e:
-            print(f"处理页面 {page.name} 时出错: {e}")
+            failed_pages.append((page_name, str(e)))
+            print(f"错误: 无法转移图片 {page_name} - {e}")
