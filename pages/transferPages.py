@@ -114,3 +114,18 @@ def transfer_all_pages(old_site: Site, new_site: Site):
         except Exception as e:
             failed_pages.append((page_name, str(e)))
             print(f"错误: 无法转移图片 {page_name} - {e}")
+
+        # 输出转移结果摘要
+        print("\n===== 转移结果 =====")
+        print(f"成功: {success_count} 个页面")
+        print(f"失败: {len(failed_pages)} 个页面")
+
+        if failed_pages:
+            print("\n失败的图片列表:")
+            for name, error in failed_pages:
+                print(f"- {name}: {error}")
+
+        # if skipped_images:  # 新增：输出跳过的图片列表
+        #     print("\n跳过的图片列表:")
+        #     for name in skipped_images:
+        #         print(f"- {name}")
