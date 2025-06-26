@@ -93,7 +93,7 @@ def transfer_all_pages(old_site: Site, new_site: Site):
     pages_to_transfer = old_page_list - new_page_list
 
     if not pages_to_transfer:
-        print("没有需要转移的图片")
+        print("没有需要转移的页面")
         return
 
     print(f"发现 {len(pages_to_transfer)} 个页面需要转移")
@@ -105,15 +105,15 @@ def transfer_all_pages(old_site: Site, new_site: Site):
         # 检查页面名称合法性
         # if page_name.lower().endswith(('.webp', '.ico')):
         #     skipped_pages.append(page_name)
-        #     print(f"跳过图片: {page_name} (不支持的格式)")
+        #     print(f"跳过页面: {page_name} (不支持的格式)")
         #     continue
         try:
-            print(f"正在处理图片: {page_name}")
+            print(f"正在处理页面: {page_name}")
             update_single_page(old_site, new_site, page_name, "Charles手动触发同步")
             success_count += 1
         except Exception as e:
             failed_pages.append((page_name, str(e)))
-            print(f"错误: 无法转移图片 {page_name} - {e}")
+            print(f"错误: 无法转移页面 {page_name} - {e}")
 
         # 输出转移结果摘要
         print("\n===== 转移结果 =====")
@@ -121,11 +121,11 @@ def transfer_all_pages(old_site: Site, new_site: Site):
         print(f"失败: {len(failed_pages)} 个页面")
 
         if failed_pages:
-            print("\n失败的图片列表:")
+            print("\n失败的页面列表:")
             for name, error in failed_pages:
                 print(f"- {name}: {error}")
 
-        # if skipped_images:  # 新增：输出跳过的图片列表
-        #     print("\n跳过的图片列表:")
+        # if skipped_images:  # 新增：输出跳过的页面列表
+        #     print("\n跳过的页面列表:")
         #     for name in skipped_images:
         #         print(f"- {name}")
