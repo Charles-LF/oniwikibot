@@ -1,22 +1,7 @@
-import os
-
-from pages.transferPages import transferAllPages
-from sites.sites import bwiki, wikigg
-
-wikigg_user_name = ''
-wikigg_user_password = ''
-bwiki_session_data = ''
-
-if 'GITHUB_ACTIONS' in os.environ:
-    wikigg_user_name = os.environ.get('WIKIGG_USER')
-    wikigg_user_password = os.environ.get('WIKIGG_USER_PASSWORD')
-    bwiki_session_data = os.environ.get("BWIKI_SESSION_DATA")
+from pages.transferPages import transfer_all_pages
+from sites.sites import wikigg_site, bwiki_site
 
 if __name__ == '__main__':
-    wikigg.login(username=wikigg_user_name, password=wikigg_user_password)
-    bwiki.login(cookies={'SESSDATA': bwiki_session_data})
-
-    print(f"wikigg登录:{wikigg.logged_in}")
-    print(f"bwiki登录:{bwiki.logged_in}")
-
-    transferAllPages(wikigg, bwiki)
+    print(f"wikigg登录:{wikigg_site.logged_in}")
+    print(f"bwiki登录:{bwiki_site.logged_in}")
+    transfer_all_pages(old_site=wikigg_site, new_site=bwiki_site)
