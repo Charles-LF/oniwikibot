@@ -9,7 +9,7 @@ from img.img import transferImg
 CROSS_SITE_LINK_REGEX = r'\[\[(en|ru|pt-br):[^\]]*\]\]'
 DEV_NAMESPACE_PREFIX = "Dev:"
 MODULE_NAMESPACE_PREFIX = "Module:Dev/"
-IGNORED_PAGES = ["教程"]
+IGNORED_PAGES = ["教程", "MediaWiki:Common.css"]
 IMAGE_NAMESPACE_ID = 6
 
 
@@ -125,7 +125,7 @@ def transfer_all_pages(old_site: Site, new_site: Site):
         for name, error in failed_pages:
             print(f"- {name}: {error}")
 
-        # if skipped_images:  # 新增：输出跳过的页面列表
-        #     print("\n跳过的页面列表:")
-        #     for name in skipped_images:
-        #         print(f"- {name}")
+    # if skipped_images:  # 新增：输出跳过的页面列表
+    #     print("\n跳过的页面列表:")
+    #     for name in skipped_images:
+    #         print(f"- {name}")
