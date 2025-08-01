@@ -6,4 +6,4 @@ if __name__ == '__main__':
     print(f'Bwiki登录情况：{bwiki_site.logged_in}')
     print(f'灰机登录情况：{huiji_site.logged_in}')
     update_pages(old_site=wikigg_site, new_site=bwiki_site)
-    update_pages(old_site=wikigg_site, new_site=huiji_site)
+    # update_pages(old_site=wikigg_site, new_site=huiji_site)
