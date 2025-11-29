@@ -27,3 +27,8 @@ huiji_site = Site(host='oni.huijiwiki.com', clients_useragent=user_agent, custom
 wikigg_site.login(username=wikigg_user_name, password=wikigg_user_password)
 bwiki_site.login(cookies={'SESSDATA': bwiki_session_data})
 huiji_site.login(username=huiji_user_name, password=huiji_user_password)
+
+if not bwiki_site.logged_in():
+    sys.exit('bwiki session 登录状态异常')
+if not wikigg_site.logged_in():
+    sys.exit('wiki gg 登录状态异常')
