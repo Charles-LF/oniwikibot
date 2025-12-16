@@ -33,6 +33,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install mwclient
+      #        if: steps.cache-python.outputs.cache-hit != 'true'  # 新增：仅缓存未命中时执行
 
       - env:
           WIKIGG_USER_PASSWORD: ${{ secrets.WIKIGG_USER_PASSWORD}}
