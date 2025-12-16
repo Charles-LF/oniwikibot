@@ -124,8 +124,3 @@ def transfer_all_pages(old_site: Site, new_site: Site):
         print("\n失败的页面列表:")
         for name, error in failed_pages:
             print(f"- {name}: {error}")
-
-    # if skipped_images:  # 新增：输出跳过的页面列表
-    #     print("\n跳过的页面列表:")
-    #     for name in skipped_images:
-    #         print(f"- {name}")
