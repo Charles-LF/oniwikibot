@@ -25,6 +25,7 @@ jobs:
           pip install mwclient
 
       - env:
+          PYTHONIOENCODING: utf-8
           WIKIGG_USER_PASSWORD: ${{ secrets.WIKIGG_USER_PASSWORD}}
           WIKIGG_USER: ${{ secrets.WIKIGG_USER }}
           BWIKI_SESSION_DATA: ${{ secrets.BWIKI_SESSION_DATA}}
