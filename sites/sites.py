@@ -21,18 +21,20 @@ wikigg_user_password = os.environ.get('WIKIGG_USER_PASSWORD', DEFAULT_WIKIGG_PWD
 bwiki_session_data = os.environ.get("BWIKI_SESSION_DATA", DEFAULT_BWIKI_SESSION)
 huiji_user_name = os.environ.get("HUIJI_USER", DEFAULT_HUIJI_USER)
 huiji_user_password = os.environ.get("HUIJI_USER_PASSWORD", DEFAULT_HUIJI_PWD)
-uakey = os.environ.get("UAKEY", DEFAULT_UAKEY)
+# uakey = os.environ.get("UAKEY", DEFAULT_UAKEY)
 
 wikigg_site = Site(host='oxygennotincluded.wiki.gg', path="/zh/", clients_useragent=USER_AGENT)
 bwiki_site = Site(host='wiki.biligame.com', path="/oni/", clients_useragent=USER_AGENT)
-huiji_site = Site(host='oni.huijiwiki.com', clients_useragent=USER_AGENT, custom_headers={'X-authkey': uakey})
+
+
+# huiji_site = Site(host='oni.huijiwiki.com', clients_useragent=USER_AGENT, custom_headers={'X-authkey': uakey})
 
 
 def wiki_login():
     """ 登录站点 """
     wikigg_site.login(username=wikigg_user_name, password=wikigg_user_password)
     bwiki_site.login(cookies={'SESSDATA': bwiki_session_data})  # bwiki是session cookie登录
-    huiji_site.login(username=huiji_user_name, password=huiji_user_password)
+    # huiji_site.login(username=huiji_user_name, password=huiji_user_password)
 
 
 while login_retry_count <= MAX_LOGIN_RETRY:
@@ -62,13 +64,13 @@ if not bwiki_site.logged_in:
 if not wikigg_site.logged_in:
     print("❌ wikigg 站点登录状态异常，未成功登录")
     login_check_flag = False
-if not huiji_site.logged_in:
-    print("❌ huiji 站点登录状态异常，未成功登录")
-    login_check_flag = False
+# if not huiji_site.logged_in:
+#     print("❌ huiji 站点登录状态异常，未成功登录")
+#     login_check_flag = False
 
 # 状态校验失败则退出进程
 if not login_check_flag:
     sys.exit(1)
 
 # 导出站点实例
-__all__ = ["wikigg_site", "bwiki_site", "huiji_site"]
+__all__ = ["wikigg_site", "bwiki_site"]
