@@ -1,11 +1,11 @@
 import datetime
 import re
-
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from mwclient import Site
-
 from img.img import transferImg
 
-# 常量定义
+# --- 常量定义 ---
 CROSS_SITE_LINK_REGEX = r'\[\[(en|ru|pt-br):[^\]]*\]\]'
 DEV_NAMESPACE_PREFIX = "Dev:"
 MODULE_NAMESPACE_PREFIX = "Module:Dev/"
@@ -13,48 +13,66 @@ IGNORED_PAGES = ["教程", "MediaWiki:Common.css"]
 IMAGE_NAMESPACE_ID = 6
 
 
+# 线程锁，保证控制台输出不乱序
+print_lock = threading.Lock()
+
+def safe_print(message):
+    with print_lock:
+        print(message)
+
+
+# --- 工具函数 ---
 def clean_page_text(page_text: str) -> str:
     """清理页面文本中的跨站链接"""
     return re.sub(CROSS_SITE_LINK_REGEX, "", page_text)
-
 
 def convert_dev_namespace(page_text: str) -> str:
     """将 Dev: 命名空间转换为 Module:Dev/"""
     return page_text.replace(DEV_NAMESPACE_PREFIX, MODULE_NAMESPACE_PREFIX)
 
-
 def process_image(old_site: Site, new_site: Site, title: str):
     """处理图片页面的传输"""
-    if "File:" in title and IMAGE_NAMESPACE_ID == 6:
-        transferImg(oldSite=old_site, newSite=new_site, fileName=title)
-        return True
+    if "File:" in title:
+        try:
+            transferImg(oldSite=old_site, newSite=new_site, fileName=title)
+            return True
+        except Exception as e:
+            safe_print(f"图片 {title} 传输失败: {e}")
     return False
 
 
+
+# --- 核心更新逻辑 ---
 def update_single_page(old_site: Site, new_site: Site, title: str, user: str):
-    """更新单个页面"""
     try:
-        print(f"正在处理 {title}")
-        old_page_text = clean_page_text(old_site.pages[title].text())
-        old_page_text = convert_dev_namespace(old_page_text)
-        new_page_text = new_site.pages[title].text()
-
-        if old_page_text != new_page_text:
-            res = new_site.pages[title].edit(
-                text=old_page_text,
-                summary=f'原站点 {title} 由 {user} 更改, 于此时同步'
+        # 1. 抓取旧站内容
+        old_page = old_site.pages[title]
+        raw_text = old_page.text()
+        
+        # 2. 处理文本
+        processed_text = convert_dev_namespace(clean_page_text(raw_text))
+        
+        # 3. 抓取新站内容并比对
+        new_page = new_site.pages[title]
+        if processed_text != new_page.text():
+            new_page.edit(
+                text=processed_text,
+                summary=f'原站点 {title} 由 {user} 更改, 自动同步 (Multi-threaded)'
             )
-            print(res)
+            safe_print(f"已更新: {title}")
+        else:
+            safe_print(f"无变化: {title}")
     except Exception as e:
-        print(f"处理页面 {title} 时出错: {e}")
+        safe_print(f"处理页面 {title} 时出错: {e}")
 
-
-def update_pages(old_site: Site, new_site: Site):
-    """根据最近更改列表更新页面"""
+# --- 主调用函数 ---
+def update_pages(old_site: Site, new_site: Site, max_workers=5):
+    """增量同步：多线程版"""
     now = datetime.datetime.now()
     three_hours_ago = now - datetime.timedelta(hours=3)
-    print(f"开始处理 {three_hours_ago} 到 {now} 的更新...")
     end_time = int(three_hours_ago.timestamp())
+    
+    safe_print(f"开始多线程同步，时间窗口: {three_hours_ago} 至今")
 
     changes_list_old = old_site.get(
         action="query",
@@ -62,65 +80,50 @@ def update_pages(old_site: Site, new_site: Site):
         rcstart="now",
         rcend=end_time,
         rcdir="older",
-        rcprop="user|comment|title|timestamp"
+        rcprop="user|title"
     )
     pages = changes_list_old["query"]["recentchanges"]
+    
     processed_titles = set()
+    tasks = []
 
-    for page in pages:
-        title = page["title"]
-        if title in IGNORED_PAGES:
-            print(f"{title} 在无需处理的页面列表中, 跳过")
-            continue
-        if title in processed_titles:
-            print(f"已经处理过 {title}, 跳过")
-            continue
-        if process_image(old_site, new_site, title):
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        for page in pages:
+            title = page["title"]
+            if title in IGNORED_PAGES or title in processed_titles:
+                continue
+            
+            # 图像特殊处理
+            if "File:" in title:
+                process_image(old_site, new_site, title)
+                processed_titles.add(title)
+                continue
+
+            # 提交线程任务
+            tasks.append(executor.submit(update_single_page, old_site, new_site, title, page["user"]))
             processed_titles.add(title)
-            continue
 
-        update_single_page(old_site, new_site, title, page["user"])
-        processed_titles.add(title)
+        # 等待结果
+        for future in as_completed(tasks):
+            future.result()
+    
+    safe_print("增量同步完成")
 
-
-def transfer_all_pages(old_site: Site, new_site: Site):
-    """同步两个站点的所有页面"""
-    # 获取两个站点间所有页面的页面名称列表
+def transfer_all_pages(old_site: Site, new_site: Site, max_workers=10):
+    """全量同步：多线程版"""
     old_page_list = {page.name for page in old_site.allpages(generator=True)}
     new_page_list = {page.name for page in new_site.allpages(generator=True)}
-
-    # 计算需要从旧站转移到新站的页面（仅旧站存在的）
-    pages_to_transfer = old_page_list - new_page_list
+    pages_to_transfer = sorted(list(old_page_list - new_page_list))
 
     if not pages_to_transfer:
-        print("没有需要转移的页面")
+        safe_print("没有需要全量转移的页面")
         return
 
-    print(f"发现 {len(pages_to_transfer)} 个页面需要转移")
-    success_count = 0
-    failed_pages = []
-    # skipped_pages = []  # 新增：记录跳过的页面名称
+    safe_print(f"发现 {len(pages_to_transfer)} 个缺失页面，准备转移...")
 
-    for page_name in sorted(pages_to_transfer):
-        # 检查页面名称合法性
-        # if page_name.lower().endswith(('.webp', '.ico')):
-        #     skipped_pages.append(page_name)
-        #     print(f"跳过页面: {page_name} (不支持的格式)")
-        #     continue
-        try:
-            print(f"正在处理页面: {page_name}")
-            update_single_page(old_site, new_site, page_name, "Charles手动触发同步")
-            success_count += 1
-        except Exception as e:
-            failed_pages.append((page_name, str(e)))
-            print(f"错误: 无法转移页面 {page_name} - {e}")
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(update_single_page, old_site, new_site, name, "Charles手动触发"): name for name in pages_to_transfer}
+        for future in as_completed(futures):
+            future.result()
 
-        # 输出转移结果摘要
-        print("\n===== 转移结果 =====")
-        print(f"成功: {success_count} 个页面")
-        print(f"失败: {len(failed_pages)} 个页面")
-
-    if failed_pages:
-        print("\n失败的页面列表:")
-        for name, error in failed_pages:
-            print(f"- {name}: {error}")
+    safe_print("全量转移完成")
