@@ -1,7 +1,7 @@
 from pages.transferOnePage import transferPage
 from sites.sites import bwiki_site, wikigg_site
 
-pageName = ['公共餐桌']
+pageName = ['辐射病']
 
 if __name__ == '__main__':
     for name in pageName:
